@@ -1,0 +1,13 @@
+{% extends 'polls/base.html' %}
+
+{% block content %}
+<h2>quetion list</h2>
+    {% if list %}
+        {% for item in list %}
+            <li><a href="{% url 'questionDetail' item.id %}">{{ item.question_text }}</a></li>
+        {% endfor %}
+    {% else %}
+        <p>ko co gi</p>
+    {% endif %}
+    <p><a href="{% url 'questionAdd' %}" class="btn btn-primary">Add a question</a></p>
+{% endblock %}

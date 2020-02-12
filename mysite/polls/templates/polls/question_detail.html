@@ -1,0 +1,31 @@
+{% extends 'polls/base.html' %}
+
+{% block content %}
+<h2>Question: {{ question.question_text }}</h2>
+<hr>
+<form action="{% url 'vote' %}" method="post">
+    {% csrf_token %}
+    {% for item in choices %}
+        <input type="radio" name="answer" required value="{{ item.id }}"</>{{ item.choice_text }} <b>{{item.vote}}</b><br>
+    {% endfor %}
+    <input type="hidden" name="question_id" value="{{question.id}}">
+<hr>
+    {% if choices|length > 0 %}
+        <button type="submit" class="btn btn-primary">Vote</button>
+    {% endif %}
+    <button type="button" onclick="showAddAnswerArea()" class="btn">Add new answer</button>
+</form>
+<hr>
+<form action="{% url 'addAnswer' %}" id="showAddAnswer" method="post" style="display: none">
+    {% csrf_token %}
+    <textarea name="choice_text"></textarea>
+    <input type="hidden" name="question_id" value="{{question.id}}">
+    <button type="submit">Add Answer</button>
+</form>
+<script>
+    function showAddAnswerArea(){
+        jQuery('#showAddAnswer').show();
+    }
+</script>
+
+{% endblock %}
