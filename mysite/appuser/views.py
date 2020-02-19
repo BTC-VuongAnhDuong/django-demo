@@ -4,26 +4,35 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-import django.contrib import auth
+from django.contrib import auth
 from django.contrib.auth.models import User
-import base64
+import urllib
 # Create your views here.
 def login(request):
     if request.method=='POST':
         userName = request.POST.get('user_name',False)
         password = request.POST.get('password',False)
         myUser = auth.authenticate(username=userName,password=password)
-        if userName is None:
-            return HttpResponse('Invalid username')
+        data = {}
+        if myUser is None:
+            data = { "error": 'Invalid username or password','userName':userName }
+            # setattr(data,'error','Invalid username or password')
+            # data.error = 'Invalid username or password'
+            return render(request,'appuser/login.html',data)
+
         auth.login(request,myUser)
 
-        redirect = request.POST.get('redirect',False)
-        if len(redirect) > 0:
-            return return HttpResponseRedirect(base64.b64decode(redirect))
-        return render(request,'auth/login.html')
+        redirect = request.POST.get('redirect')
+        if redirect:
+            redirect = urllib.unquote(redirect)
+            return HttpResponseRedirect(redirect)
+        return HttpResponseRedirect('/')
     else:
-        data={"redirect":request.GET.get('redirect',False)}
-        return render(request,'auth/login.html',data)
+        redirect = request.GET.get('next')
+        data = {"error":False}
+        if redirect:
+            data = {"error": False,'redirect':redirect}
+        return render(request,'appuser/login.html',data)
 
 def register(request):
     if request.method=='POST':
@@ -45,9 +54,16 @@ def register(request):
         myUser = auth.authenticate(username=userName,password=password)
         
         redirect = request.POST.get('redirect',False)
-        if len(redirect) > 0:
-            return return HttpResponseRedirect(base64.b64decode(redirect))
-        return render(request,'auth/register.html')
+        if redirect:
+            return HttpResponseRedirect(urllib.unquote(redirect))
+        return HttpResponseRedirect('/')
     else:
-        data={"redirect":request.GET.get('redirect',False)}
-        return render(request,'auth/register.html',data)
+        redirect = request.GET.get('redirect')
+        data = {}
+        if redirect:
+            data.redirect = urllib.unquote(redirect)
+        return render(request,'appuser/register.html',data)
+
+def logout(request):
+    auth.logout(request)
+    return HttpResponseRedirect('/auth/login')
