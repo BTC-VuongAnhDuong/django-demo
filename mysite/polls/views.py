@@ -2,15 +2,16 @@
 from __future__ import unicode_literals
 
 import datetime
-
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from .models import Choice
 from .models import Question
 from django.contrib.auth import decorators
-
+from django.forms.models import model_to_dict
+import json
 
 def index(request):
     myname = "Vuong Anh duong"
@@ -19,12 +20,16 @@ def index(request):
         "name" : myname,
         "items" : taisan
     }
-    return render(request,"polls/index.html",context)
+    return render(request,"polls/app/dist/index.html",context)
 
 def viewList(request):
-    list_question = Question.objects.all()
-    content = {"list": list_question}
-    return render(request, "polls/question_list.html",content)
+    list_question = Question.objects.all().values()
+    context = {
+        "data": list(list_question),
+        "meta": {},
+        'pagination': []
+    }
+    return JsonResponse(context)
 
 def questiondetail(request, question_id):
     if(question_id ==False):

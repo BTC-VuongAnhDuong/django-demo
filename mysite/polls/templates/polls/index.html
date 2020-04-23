@@ -1,5 +1,13 @@
 {% extends 'polls/base.html' %}
+{% load static %}
+
+{% block header %}
+<script src="{% static "js/vue.js" %}"></script>
+{% endblock %}
 
 {% block content %}
-Home page
+<div id="app">
+
+</div>
+<script src="{% static "js/main.js" %}"></script>
 {% endblock %}
